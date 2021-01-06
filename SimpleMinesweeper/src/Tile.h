@@ -4,8 +4,8 @@ struct Tile
 {
 	int numNearBombs = 0;
 	bool isPressed = false;
-	bool isBomb;
 	bool isFlagged = false;
+	bool isBomb;
 
 	Tile(bool isBomb) : isBomb(isBomb) {};
 };

@@ -18,6 +18,12 @@
     <ClCompile Include="src\SimpleMinesweeper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Clock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Button.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resources\olcPixelGameEngine.h">
@@ -29,5 +35,22 @@
     <ClInclude Include="src\Tile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Clock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Button.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resources\bomb.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Resources\tile.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Resources\flag.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
