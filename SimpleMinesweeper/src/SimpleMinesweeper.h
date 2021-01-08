@@ -33,8 +33,14 @@ private:
 	void keyInput();
 	//modifies tiles surrounding a tile
 	void modifySurrounding(int row, int column, const std::function<void(int, int)>& func);
+	//presses all tiles around a tile next to no bombs recursively
+	void clearOpenArea(int row, int column);
 	//draws game
 	void drawGrid();
+	//returns colour to draw number based on numNearBombs
+	olc::Pixel getNumColour(Tile tile);
+	//returns number of tiles flagged
+	int getTilesFlagged();
 
 private:
 	//game states

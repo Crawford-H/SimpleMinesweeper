@@ -12,8 +12,6 @@ public:
 	Button();
 	Button(int x, int y, int length, int width, std::string label, const std::function<void()>& func);
 	void drawButton(olc::PixelGameEngine* screen);
-	void setButtonColour(olc::Pixel colour, olc::Pixel highlighted);
-	void setTextColour(olc::Pixel colour, olc::Pixel highlighted);
 	void update(int32_t mouseX, int32_t mouseY, olc::PixelGameEngine* screen);
 
 private:
