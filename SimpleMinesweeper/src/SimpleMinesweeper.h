@@ -12,6 +12,7 @@
 
 #include "Tile.h"
 #include "Button.h"
+#include "Clock.h"
 
 
 class SimpleMinesweeper : public olc::PixelGameEngine 
@@ -38,9 +39,13 @@ private:
 	//draws game
 	void drawGrid();
 	//returns colour to draw number based on numNearBombs
-	olc::Pixel getNumColour(Tile tile);
+	inline olc::Pixel getNumColour(Tile tile);
+	//draws endscreen text
+	void drawEndScreen(std::string message);
 	//returns number of tiles flagged
 	int getTilesFlagged();
+	//checks if all non bomb tiles have been dug
+	bool isWon();
 
 private:
 	//game states
@@ -65,4 +70,6 @@ private:
 	Button* button;
 	Button* button2;
 	Button* button3;
+
+	std::unique_ptr<Clock> clock;
 };

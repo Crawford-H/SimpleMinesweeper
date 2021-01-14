@@ -30,6 +30,9 @@ bool SimpleMinesweeper::OnUserCreate()
 	bombImage = std::make_unique<olc::Sprite>("./resources/bomb.png");
 	flagImage = std::make_unique<olc::Sprite>("./resources/flag.png");
 	tileImage = std::make_unique<olc::Sprite>("./resources/tile.png");
+
+	squareWidth = 32;
+	clock = std::make_unique<Clock>(ScreenWidth() - (9 * squareWidth), squareWidth, olc::RED, 4);
 	return true;
 }
 
@@ -45,21 +48,27 @@ bool SimpleMinesweeper::OnUserUpdate(float fElapsedTime)
 	case State::RUNNING:
 		keyInput();
 		drawGrid();
+		clock->drawClock(this, fElapsedTime);
 		break;
 
 	case State::STOPPED:
 		keyInput();
 		drawGrid();
+		clock->drawClock(this);
 		break;
 
 	case State::WON:
 		keyInput();
 		drawGrid();
+		clock->drawClock(this);
+		drawEndScreen("You won :) Press escape to return");
 		break;
 
 	case State::LOST:
 		keyInput();
 		drawGrid();
+		clock->drawClock(this);
+		drawEndScreen("You lost :( Press escape to return");
 		break;
 	}
 	return true;
@@ -70,13 +79,12 @@ void SimpleMinesweeper::initTiles()
 {
 	tiles.clear();
 	//determine variables based on difficulty
-	squareWidth = 32;
 	rows = (ScreenHeight() / squareWidth) - 3; columns = (ScreenWidth() / squareWidth) - 2;
 	numTiles = rows * columns;
 	switch (difficulty)
 	{
 	case Difficulty::EASY:
-		numBombs = rows * columns / 7;
+		numBombs = rows * columns / 10;
 		break;
 	case Difficulty::MEDIUM:
 		numBombs = rows * columns / 6;
@@ -131,6 +139,16 @@ void SimpleMinesweeper::drawMenu()
 }
 
 
+void SimpleMinesweeper::drawEndScreen(std::string message)
+{
+	SetPixelMode(olc::Pixel::Mode::ALPHA);
+	SetPixelBlend(0.7f);
+	FillRect(0, 0, ScreenWidth(), ScreenHeight(), olc::BLACK);
+	SetPixelMode(olc::Pixel::Mode::NORMAL);
+	DrawString(ScreenWidth() / 2 - (message.size() * 24 / 2), ScreenHeight() / 2 - 12, message, olc::WHITE, 3);
+}
+
+
 void SimpleMinesweeper::modifySurrounding(int row, int column, const std::function<void(int, int)>& func) {
 	//left
 	if (column - 1 >= 0) {
@@ -169,7 +187,7 @@ void SimpleMinesweeper::keyInput()
 {
 	bool leftClick = GetMouse(0).bPressed;
 	bool rightClick = GetMouse(1).bPressed;
-	if (leftClick || rightClick) {
+	if ((leftClick || rightClick) && state != State::WON && state != State::LOST) {
 		if (state == State::STOPPED)
 			state = State::RUNNING;
 		//check if mouse is within grid
@@ -179,6 +197,8 @@ void SimpleMinesweeper::keyInput()
 
 			if (leftClick && !tiles[row][column].isFlagged) {									//dig if mouse 0 click and tile is not flagged
 				tiles[row][column].isPressed = true;
+				if (isWon())																	//check if game over when tile is dug
+					state = State::WON;
 				if (tiles[row][column].isBomb)
 					state = State::LOST;
 				if (tiles[row][column].numNearBombs == 0)
@@ -191,6 +211,8 @@ void SimpleMinesweeper::keyInput()
 	if (IsFocused()) {	//reset
 		if (GetKey(olc::Key::ESCAPE).bPressed)
 			OnUserCreate();
+		if (GetKey(olc::Key::ENTER).bPressed)
+			state = State::WON;
 	}
 }
 
@@ -205,9 +227,9 @@ void SimpleMinesweeper::drawGrid()
 	for (const auto& column : tiles) {
 		x = 0;
 		y++;
-		for (const auto& row : column) {
-			if (row.isPressed) {
-				if (row.isBomb) {
+		for (const auto& tile : column) {
+			if (tile.isPressed || state == State::WON || state == State::LOST) {
+				if (tile.isBomb) {
 					xBuffer = x * squareWidth + squareWidth;
 					yBuffer = y * squareWidth + squareWidth;
 					DrawSprite(olc::vi2d(xBuffer, yBuffer), bombImage.get());
@@ -215,11 +237,11 @@ void SimpleMinesweeper::drawGrid()
 				else {
 					xBuffer = x * squareWidth + squareWidth + 8;
 					yBuffer = y * squareWidth + squareWidth + 8;
-					if (row.numNearBombs != 0)
-						DrawString(xBuffer, yBuffer, std::to_string(row.numNearBombs), getNumColour(row), 2);
+					if (tile.numNearBombs != 0)
+						DrawString(xBuffer, yBuffer, std::to_string(tile.numNearBombs), getNumColour(tile), 2);
 				}
 			}
-			else if (row.isFlagged) 
+			else if (tile.isFlagged)
 				DrawSprite(olc::vi2d(x * squareWidth + squareWidth, y * squareWidth + squareWidth), flagImage.get());
 			else 
 				DrawSprite(olc::vi2d(x * squareWidth + squareWidth, y * squareWidth + squareWidth), tileImage.get());
@@ -238,7 +260,7 @@ void SimpleMinesweeper::drawGrid()
 }
 
 
-olc::Pixel SimpleMinesweeper::getNumColour(Tile tile) {
+inline olc::Pixel SimpleMinesweeper::getNumColour(Tile tile) {
 	switch (tile.numNearBombs)
 	{
 	case 1:
@@ -278,6 +300,18 @@ int SimpleMinesweeper::getTilesFlagged()
 				total++;
 	}
 	return total;
+}
+
+
+bool SimpleMinesweeper::isWon() 
+{
+	for (auto& row : tiles) {
+		for (auto& tile : row) {
+			if (!tile.isBomb && !tile.isPressed)
+				return false;
+		}
+	}
+	return true;
 }
 
 

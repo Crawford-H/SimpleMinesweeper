@@ -2,7 +2,10 @@
 
 Button::Button() 
 {
-
+	x = 0; y = 0; width = 10; height = 10;
+	label = ""; xTextPadding = 0; yTextPadding = 0;
+	action = NULL;
+	highlighted = false;
 }
 
 

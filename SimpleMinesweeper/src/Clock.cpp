@@ -1,6 +1,7 @@
 #include "Clock.h"
 
-Clock::Clock() : sec(0), min(0), hour(0), fAccumulatedTime(0) {};
+Clock::Clock(int x, int y, olc::Pixel colour, int scale) 
+	: sec(0), min(0), hour(0), fAccumulatedTime(0), x(x), y(y), colour(colour), scale(scale) {};
 
 void Clock::updateClock(float fElapsedTime) {
 	fAccumulatedTime += fElapsedTime;
@@ -41,4 +42,11 @@ std::string Clock::getTime() {
 		sHour = std::to_string(hour);
 
 	return sHour + ":" + sMin + ":" + sSec;
+}
+
+
+void Clock::drawClock(olc::PixelGameEngine* screen, float fElapsedTime)
+{
+	updateClock(fElapsedTime);
+	screen->DrawString(x, y, this->getTime(), colour, scale);
 }
